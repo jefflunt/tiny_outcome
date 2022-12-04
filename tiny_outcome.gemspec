@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "tiny_outcome"
-  s.version     = "1.0.0"
+  s.version     = "1.0.1"
   s.description = "a tiny outcome tracker with almost no features"
   s.summary     = "want to track the outcome of binary events, and absolutely nothing else? then this library is for you."
   s.authors     = ["Jeff Lunt"]

@@ -128,6 +128,11 @@ class TinyOutcome
     warmth == warmup
   end
 
+  # the opposite of warm: a TinyOutcome can only be cold or warm
+  def cold?
+    !warm?
+  end
+
   # true if we've received at least precision number of samples
   # false otherwise
   def full?
