@@ -20,17 +20,11 @@
 #   87.times { o << rand(2) }
 #
 # to_s reveals how we're doing:
-#   L10 1111000110 coinflip 0.49 84/84::128/128
+#   L10 1111000110 w 0.49 84/84::128/128
 #
 # this tells us that of the 128 precision capacity, we're currently warmed up
-# because we have the minimum (at least 84 samples) to be considered warmed up.
-# there's also a prediction here: that the outcome is essentially a coinflip.
-# this is because the observed likelihood of an outcome of 1 is 49% in this
-# example, well within the range of random chance. if we had a TinyOutcome with
-# a precision of 10,000 we wouldn't necessarily consider 49% a true coinflip,
-# but because we're trying to predict things within a relatively small sample
-# size, we don't want to go all the way to that level of precision, it's more
-# like just trying to win more than we lose.
+# because we have the minimum (at least 84 samples) to be considered warmed up
+# (this is also indicated with the lowercase 'w').
 class TinyOutcome
   attr_reader :precision,
               :samples,
@@ -95,33 +89,6 @@ class TinyOutcome
     value.to_s(2).count('1') / samples.to_f
   end
 
-  # classifies the probability of the next outcome
-  #
-  # :cold - if this Outcome isn't yet warm
-  # :highly_positive - greater than 95% chance that the next outcome will be a 1
-  # :positive - greater than 90% chance the next outcome will be a 1
-  # :coinflip - 50% chance (+/- 5%) that the next outcome will be a 1
-  # :negative - less than 10% chance the next outcome will be a 1
-  # :highly_negative - less than 5% chance the next outcome will be a 1
-  # :weak - for all other outcomes
-  def prediction
-    return :cold unless warm?
-
-    case probability
-    when 0...0.05     then :disaster
-    when 0.05...0.1   then :strongly_negative
-    when 0.1...0.32   then :negative
-    when 0.32..0.34   then :one_third
-    when 0.34...0.48  then :weakly_negative
-    when 0.48..0.52   then :coinflip
-    when 0.52...0.65  then :weakly_positive
-    when 0.65..0.67   then :two_thirds
-    when 0.67..0.9    then :positive
-    when 0.9...0.95   then :strongly_positive
-    when 0.95..1.0    then :amazing
-    end
-  end
-
   # true if we've received at least warmup number of samples
   # false otherwise
   def warm?
@@ -146,15 +113,15 @@ class TinyOutcome
      :warmth,
      :warmup,:warm?,
      :probability,
-     :prediction,
     ].each_with_object({}) do |attr, memo|
       memo[attr] = send(attr)
       memo
     end
   end
 
+  # L10 = last 10 samples
   def to_s
     max_backward = [value.to_s(2).length, 10].min
-    "L10 #{value.to_s(2)[-max_backward..-1].rjust(10, '?')} #{prediction} #{'%.2f' % probability} #{warmth}/#{warmup}::#{samples}/#{precision}"
+    "L10 #{value.to_s(2)[-max_backward..-1].rjust(10, '?')} #{warm? ? 'w' : 'c'} #{'%.2f' % probability} #{warmth}/#{warmup}::#{samples}/#{precision}"
   end
 end
