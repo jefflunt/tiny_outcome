@@ -54,7 +54,8 @@ class TinyOutcome
               when WARM_ONE_THIRD   then precision / 3
               when WARM_NONE        then 0
               else
-                raise "Invalid warmup: #{warmup.inspect}"
+                raise "Invalid warmup: #{warmup.inspect}" if (!warmup.is_a?(Integer) || warmup < 1)
+                warmup
               end
   end
 
@@ -85,14 +86,13 @@ class TinyOutcome
   # probabilty = ---------------
   #               total samples
   def probability
-    return -1 unless warm?
-    value.to_s(2).count('1') / samples.to_f
+    (value.to_s(2).count('1') / samples.to_f).round(2)
   end
 
   # true if we've received at least warmup number of samples
   # false otherwise
   def warm?
-    warmth == warmup
+    warmth >= warmup
   end
 
   # the opposite of warm: a TinyOutcome can only be cold or warm
@@ -122,6 +122,6 @@ class TinyOutcome
   # L10 = last 10 samples
   def to_s
     max_backward = [value.to_s(2).length, 10].min
-    "L10 #{value.to_s(2)[-max_backward..-1].rjust(10, '?')} #{warm? ? 'w' : 'c'} #{'%.2f' % probability} #{warmth}/#{warmup}::#{samples}/#{precision}"
+    "L10 #{value.to_s(2)[-max_backward..-1].rjust(10, '?')} #{warm? ? 'W' : 'c'} #{'%.2f' % probability} #{warmth}/#{warmup}::#{samples}/#{precision}"
   end
 end
