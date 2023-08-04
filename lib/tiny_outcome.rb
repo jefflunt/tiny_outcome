@@ -86,7 +86,8 @@ class TinyOutcome
   # probabilty = ---------------
   #               total samples
   def probability
-    (value.to_s(2).count('1') / samples.to_f).round(2)
+    return 0.0 if samples == 0
+    value.to_s(2).count('1') / samples.to_f
   end
 
   # true if we've received at least warmup number of samples
