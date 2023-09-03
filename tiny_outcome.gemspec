@@ -8,4 +8,7 @@ Gem::Specification.new do |s|
   s.files       = ["lib/tiny_outcome.rb"]
   s.homepage    = "https://github.com/jefflunt/tiny_outcome"
   s.license     = "MIT"
+
+  s.add_development_dependency 'm'
+  s.add_development_dependency 'minitest'
 end
