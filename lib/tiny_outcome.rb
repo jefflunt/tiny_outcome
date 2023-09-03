@@ -30,6 +30,8 @@ class TinyOutcome
               :samples,
               :warmth,
               :warmup,
+              :probability,
+              :one_count,
               :value
 
   WARM_FULL = :full
@@ -44,6 +46,8 @@ class TinyOutcome
   #   samples that we can trust the probability output
   def initialize(precision, warmup=WARM_FULL)
     @precision = precision
+    @probability = 0.0
+    @one_count = 0
     @samples = 0
     @warmth = 0
     @value = 0
@@ -70,6 +74,15 @@ class TinyOutcome
     @warmth += 1 unless warmth == warmup
     @samples += 1 unless samples == precision
 
+    # float: 0.0-1.0
+    # percentage of 1s out of the existing samples
+    #
+    #               number of 1s
+    # probabilty = ---------------
+    #               total samples
+    @one_count = value.to_s(2).count('1')
+    @probability =  @one_count / samples.to_f
+
     value
   end
 
@@ -77,17 +90,6 @@ class TinyOutcome
   # false otherwise
   def winner_at?(percentage)
     probability >= percentage
-  end
-
-  # float: 0.0-1.0
-  # percentage of 1s out of the existing samples
-  #
-  #               number of 1s
-  # probabilty = ---------------
-  #               total samples
-  def probability
-    return 0.0 if samples == 0
-    value.to_s(2).count('1') / samples.to_f
   end
 
   # true if we've received at least warmup number of samples
