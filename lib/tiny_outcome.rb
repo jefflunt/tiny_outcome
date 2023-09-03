@@ -112,7 +112,8 @@ class TinyOutcome
     [:value,
      :samples,
      :warmth,
-     :warmup,:warm?,
+     :warmup,
+     :warm?,
      :probability,
     ].each_with_object({}) do |attr, memo|
       memo[attr] = send(attr)
