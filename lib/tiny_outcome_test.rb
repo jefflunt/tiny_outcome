@@ -7,7 +7,7 @@ class TestTinyOutcome < Minitest::Test
   end
 
   def test_init
-    assert_equal 0, @outcome.value
+    assert_equal [0] * @outcome.precision, @outcome.value
     assert_equal 500, @outcome.precision
     assert_equal 0, @outcome.warmth
     assert_equal 100, @outcome.warmup
@@ -18,7 +18,7 @@ class TestTinyOutcome < Minitest::Test
     assert_equal 0, @outcome.one_count
 
     @outcome << 1
-    assert_equal 1, @outcome.value
+    assert_equal [1] + ([0] * (@outcome.precision - 1)), @outcome.value
     assert_equal 500, @outcome.precision
     assert_equal 1, @outcome.warmth
     assert_equal 100, @outcome.warmup
@@ -32,7 +32,7 @@ class TestTinyOutcome < Minitest::Test
 
     4.times { @outcome << 1 }
     5.times { @outcome << 0 }
-    assert_equal 992, @outcome.value
+    assert_equal 992, @outcome.numeric_value
     assert_equal 500, @outcome.precision
     assert_equal 10, @outcome.warmth
     assert_equal 100, @outcome.warmup
@@ -45,7 +45,7 @@ class TestTinyOutcome < Minitest::Test
     refute @outcome.winner_at?(0.66)
 
     @outcome << 1
-    assert_equal 1985, @outcome.value
+    assert_equal 1985, @outcome.numeric_value
     assert_equal 500, @outcome.precision
     assert_equal 11, @outcome.warmth
     assert_equal 100, @outcome.warmup
@@ -77,10 +77,33 @@ class TestTinyOutcome < Minitest::Test
 
     prev_one_count = @outcome.one_count
     @outcome << 1
+    assert_equal 500, @outcome.samples
     assert_equal prev_one_count, @outcome.one_count # hasn't changed, because we're adding a 1 while pushing out a 1
 
     prev_one_count = @outcome.one_count
     @outcome << 0
+    assert_equal 500, @outcome.samples
     assert_equal prev_one_count - 1, @outcome.one_count # reduced by one, because we're adding a 0 while pushing out a 1
+  end
+
+  def test_full_value_with_bit_rotation
+    refute @outcome.full?
+    assert_equal 0, @outcome.one_count
+
+    500.times { @outcome << 1 }
+    assert @outcome.full?
+    assert_equal 2**500 - 1, @outcome.numeric_value
+
+    @outcome << 0
+    assert @outcome.full?
+    assert_equal 2**500 - 2, @outcome.numeric_value
+
+    @outcome << 0
+    assert @outcome.full?
+    assert_equal 2**500 - 4, @outcome.numeric_value
+
+    @outcome << 1
+    assert @outcome.full?
+    assert_equal 2**500 - 7, @outcome.numeric_value
   end
 end

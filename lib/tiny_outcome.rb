@@ -50,7 +50,8 @@ class TinyOutcome
     @one_count = 0
     @samples = 0
     @warmth = 0
-    @value = 0
+    @value = [0] * @precision
+    @value_index = 0
     @warmup = case warmup
               when WARM_FULL        then precision
               when WARM_TWO_THIRDS  then (precision / 3) * 2
@@ -63,6 +64,10 @@ class TinyOutcome
               end
   end
 
+  def numeric_value
+    (full? ? @value.rotate(@value_index) : @value)[..(samples-1)].join.to_i(2)
+  end
+
   # add a sample to the historic outcomes. the new sample is added to the
   # low-order bits. the new sample is literally left-shifted into the value. the
   # only reason this is a custom method is because some metadata needs to be
@@ -70,18 +75,21 @@ class TinyOutcome
   def <<(sample)
     raise "Invalid sample: #{sample}" unless sample == 0 || sample == 1
 
-    @value = ((value << 1) | sample) & (2**precision - 1)
-    @warmth += 1 unless warmth == warmup
-    @samples += 1 unless samples == precision
+    removing_one = full? && @value[(@value_index + 1) % @precision] == 1
 
-    # float: 0.0-1.0
+    @value[@value_index] = sample
+    @value_index = (@value_index + 1) % @precision
+    @warmth += 1 unless warmth == warmup
+    @samples += 1 unless full?
+
     # percentage of 1s out of the existing samples
     #
     #               number of 1s
     # probabilty = ---------------
     #               total samples
-    @one_count = value.to_s(2).count('1')
-    @probability =  @one_count / samples.to_f
+    @one_count -= 1 if removing_one
+    @one_count += 1 if sample == 1
+    @probability = @one_count / samples.to_f
 
     value
   end
@@ -89,7 +97,7 @@ class TinyOutcome
   # true if #probability is >= percentage
   # false otherwise
   def winner_at?(percentage)
-    probability >= percentage
+    @probability >= percentage
   end
 
   # true if we've received at least warmup number of samples
