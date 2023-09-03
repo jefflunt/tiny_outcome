@@ -1,23 +1,17 @@
 PATH
   remote: .
   specs:
-    tiny_outcome (2.0.2)
+    tiny_outcome (2.1.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    m (1.6.1)
-      method_source (>= 0.6.7)
-      rake (>= 0.9.2.2)
-    method_source (1.0.0)
     minitest (5.19.0)
-    rake (13.0.6)
 
 PLATFORMS
   x86_64-darwin-21
 
 DEPENDENCIES
-  m
   minitest
   tiny_outcome!
 
