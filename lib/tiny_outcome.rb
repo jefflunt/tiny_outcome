@@ -32,7 +32,10 @@ class TinyOutcome
               :warmup,
               :probability,
               :one_count,
-              :value
+              :value,
+              :min,
+              :max,
+              :avg
 
   WARM_FULL = :full
   WARM_TWO_THIRDS = :two_thirds
@@ -49,6 +52,9 @@ class TinyOutcome
     @probability = 0.0
     @one_count = 0
     @samples = 0
+    @min = -1.0
+    @max = -1.0
+    @avg = -1.0
     @warmth = 0
     @value = [0] * @precision
     @value_index = 0
@@ -68,10 +74,7 @@ class TinyOutcome
     (full? ? @value.rotate(@value_index) : @value)[..(samples-1)].join.to_i(2)
   end
 
-  # add a sample to the historic outcomes. the new sample is added to the
-  # low-order bits. the new sample is literally left-shifted into the value. the
-  # only reason this is a custom method is because some metadata needs to be
-  # updated when a new sample is added
+  # add a sample to the historic outcomes
   def <<(sample)
     raise "Invalid sample: #{sample}" unless sample == 0 || sample == 1
 
@@ -91,7 +94,7 @@ class TinyOutcome
     @one_count += 1 if sample == 1
     @probability = @one_count / samples.to_f
 
-    value
+    @value
   end
 
   # true if #probability is >= percentage
@@ -115,6 +118,30 @@ class TinyOutcome
   # false otherwise
   def full?
     samples == precision
+  end
+
+  # updates, and memoizes, the min/max/avg numbers. if you read the min/max/avg
+  # attributes you are getting the MEMOIZED values.
+  def update_stats!
+    return if @samples == 0
+
+    @min = 1.0
+    @max = 0.0
+    @avg = 0.0
+
+    sum = 0.0
+    raw = (full? ? @value.rotate(@value_index) : @value)[..(samples-1)]
+    group_size = [@samples, 100].min
+    num_groups = @samples - group_size
+    raw.each_cons(group_size) do |samples_group|
+      curr = samples_group.count(1) / samples.to_f
+      sum += curr
+
+      @min = curr if curr < @min
+      @max = curr if curr > @max
+    end
+
+    @avg = sum / (@num_groups.to_f + 1.0)
   end
 
   # convenient way to see what's up

@@ -106,4 +106,52 @@ class TestTinyOutcome < Minitest::Test
     assert @outcome.full?
     assert_equal 2**500 - 7, @outcome.numeric_value
   end
+
+  def test_min
+    assert_equal -1.0, @outcome.min # initial, memoized value
+    @outcome.update_stats!
+
+    @outcome << 1
+    @outcome << 0
+    @outcome.update_stats!
+    assert_equal 0.5, @outcome.min
+
+    @outcome << 0
+    @outcome.update_stats!
+    assert_in_epsilon 0.3334, @outcome.min
+  end
+
+  def test_max
+    assert_equal -1.0, @outcome.max # initial, memoized value
+    @outcome.update_stats!
+
+    @outcome << 1
+    @outcome << 0
+    @outcome << 1
+    @outcome.update_stats!
+    assert_in_epsilon 0.6667, @outcome.max
+
+    @outcome << 0
+    @outcome.update_stats!
+    assert_in_epsilon 0.5, @outcome.max
+  end
+
+  def test_avg
+    assert_equal -1.0, @outcome.avg # initial, memoized value
+    @outcome.update_stats!
+
+    @outcome << 1
+    @outcome << 0
+    @outcome << 1
+    @outcome.update_stats!
+    assert_in_epsilon 0.6667, @outcome.avg
+
+    @outcome << 0
+    @outcome.update_stats!
+    assert_in_epsilon 0.5, @outcome.avg
+
+    @outcome << 1
+    @outcome.update_stats!
+    assert_in_epsilon 0.6, @outcome.avg
+  end
 end
