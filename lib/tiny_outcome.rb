@@ -52,9 +52,9 @@ class TinyOutcome
     @probability = 0.0
     @one_count = 0
     @samples = 0
-    @min = -1.0
-    @max = -1.0
-    @avg = -1.0
+    @min = 1.0
+    @max = 0.0
+    @avg = 0.0
     @warmth = 0
     @value = [0] * @precision
     @value_index = 0
