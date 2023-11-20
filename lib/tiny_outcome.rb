@@ -132,16 +132,16 @@ class TinyOutcome
     sum = 0.0
     raw = (full? ? @value.rotate(@value_index) : @value)[..(samples-1)]
     group_size = [@samples, 100].min
-    num_groups = @samples - group_size
+    num_groups = (@samples - group_size) + 1
     raw.each_cons(group_size) do |samples_group|
-      curr = samples_group.count(1) / samples.to_f
-      sum += curr
+      num_ones = samples_group.count(1) / group_size.to_f
+      sum += num_ones
 
-      @min = curr if curr < @min
-      @max = curr if curr > @max
+      @min = num_ones if num_ones < @min
+      @max = num_ones if num_ones > @max
     end
 
-    @avg = sum / (@num_groups.to_f + 1.0)
+    @avg = sum / num_groups.to_f
   end
 
   # convenient way to see what's up

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tiny_outcome (3.1.0)
+    tiny_outcome (3.1.2)
 
 GEM
   remote: https://rubygems.org/
