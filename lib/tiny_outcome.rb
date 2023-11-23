@@ -70,8 +70,14 @@ class TinyOutcome
               end
   end
 
+  # returns the array of collected samples of 1s and 0s
+  def collected_samples
+    (full? ? @value.rotate(@value_index) : @value)[..(samples-1)]
+  end
+
+  # converts the array of #collected_samples to a base-10 Integer
   def numeric_value
-    (full? ? @value.rotate(@value_index) : @value)[..(samples-1)].join.to_i(2)
+    collected_samples.join.to_i(2)
   end
 
   # add a sample to the historic outcomes
@@ -101,6 +107,14 @@ class TinyOutcome
   # false otherwise
   def winner_at?(percentage)
     @probability >= percentage
+  end
+
+  # true if #probability is >= percentage
+  # false otherwise
+  def winner_at_lately?(percentage, max_samples)
+    recent_samples = collected_samples.last(max_samples)
+    recent_probability = recent_samples.count(1) / recent_samples.length.to_f
+    recent_probability >= percentage
   end
 
   # true if we've received at least warmup number of samples

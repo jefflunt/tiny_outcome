@@ -29,6 +29,8 @@ class TestTinyOutcome < Minitest::Test
     assert @outcome.cold?
     refute @outcome.full?
     assert @outcome.winner_at?(0.66)
+    assert @outcome.winner_at_lately?(0.66, 1)
+    assert @outcome.winner_at_lately?(0.66, 50)
 
     4.times { @outcome << 1 }
     5.times { @outcome << 0 }
@@ -43,6 +45,8 @@ class TestTinyOutcome < Minitest::Test
     assert @outcome.cold?
     refute @outcome.full?
     refute @outcome.winner_at?(0.66)
+    refute @outcome.winner_at_lately?(0.66, 1)
+    refute @outcome.winner_at_lately?(0.66, 50)
 
     @outcome << 1
     assert_equal 1985, @outcome.numeric_value
@@ -56,6 +60,8 @@ class TestTinyOutcome < Minitest::Test
     assert @outcome.cold?
     refute @outcome.full?
     refute @outcome.winner_at?(0.66)
+    assert @outcome.winner_at_lately?(0.66, 1)
+    refute @outcome.winner_at_lately?(0.66, 50)
 
     488.times { @outcome << rand(2) }
     assert_equal 499, @outcome.samples
