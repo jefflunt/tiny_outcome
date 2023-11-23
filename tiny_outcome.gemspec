@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name        = "tiny_outcome"
-  s.version     = "3.2.0"
-  s.description = "a tiny outcome tracker with almost no features"
-  s.summary     = "want to track the outcome of binary events, and absolutely nothing else? then this library is for you."
+  s.version     = "3.2.1"
+  s.description = "track the probability of a binary outcome"
+  s.summary     = "track the probability of a binary outcome"
   s.authors     = ["Jeff Lunt"]
   s.email       = "jefflunt@gmail.com"
   s.files       = ["lib/tiny_outcome.rb"]
